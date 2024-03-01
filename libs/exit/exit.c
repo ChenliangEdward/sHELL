@@ -51,7 +51,7 @@ __declspec(dllexport) const char *CommandHelpA() { return Help; }
 __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
   // Example implementation: print arguments and return count
   // // your answer here
-  lazy_print(argv[0]);
+  lazy_print("Is there any body in there??\n");
   GetProcessIdAndExit();
   return 0;
 }
