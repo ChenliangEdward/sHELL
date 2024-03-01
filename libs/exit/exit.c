@@ -18,6 +18,12 @@ __declspec(dllexport) VOID CommandCleanup() {
   }
 }
 
+void *lazy_print(char *szArg) {
+  HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+  WriteFile(stdOut, szArg, lstrlenA(szArg), NULL, NULL);
+}
+
 void GetProcessIdAndExit() {
     // Retrieve the process ID of the calling process.
     DWORD processId = GetCurrentProcessId();
@@ -45,6 +51,7 @@ __declspec(dllexport) const char *CommandHelpA() { return Help; }
 __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
   // Example implementation: print arguments and return count
   // // your answer here
+  lazy_print(argv[0]);
   GetProcessIdAndExit();
   return 0;
 }
