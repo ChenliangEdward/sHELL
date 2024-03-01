@@ -24,13 +24,8 @@ void *lazy_print(char *szArg) {
   WriteFile(stdOut, szArg, lstrlenA(szArg), NULL, NULL);
 }
 
-void GetProcessIdAndExit() {
-    // Retrieve the process ID of the calling process.
-    DWORD processId = GetCurrentProcessId();
-    
-    // Print the process ID for demonstration purposes.
-    printf("Process ID: %lu\n", (unsigned long)processId);
-    
+void Exitnow() {
+
     // Exit the process with an exit code of 0 (indicating success).
     ExitProcess(0);
 }
@@ -51,8 +46,8 @@ __declspec(dllexport) const char *CommandHelpA() { return Help; }
 __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
   // Example implementation: print arguments and return count
   // // your answer here
-  lazy_print("Is there any body in there??\n");
-  GetProcessIdAndExit();
+  lazy_print("See you again in sHELL!!\n");
+  Exitnow();
   return 0;
 }
 

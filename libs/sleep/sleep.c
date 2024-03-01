@@ -25,6 +25,30 @@ __declspec(dllexport) BOOL CommandInit(InternalAPI *lpCore) {
   return TRUE;
 }
 
+// Helper functions
+void *lazy_print(char *szArg) {
+  HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+  WriteFile(stdOut, szArg, lstrlenA(szArg), NULL, NULL);
+}
+
+DWORD ConvertToDWORD(const char* str) {
+    DWORD dwValue = 0;
+    INT intValue = 0;
+    BOOL success = StrToIntEx(str, STIF_DEFAULT, &intValue);
+
+    // Check if conversion succeeded and the value is within the DWORD range
+    if (success && intValue >= 0) {
+        dwValue = (DWORD)intValue;
+    } else {
+        // Handle non-numeric strings or negative numbers by aborting
+        lazy_print("What in the name of sHELL did you just do?!\n");
+        ExitProcess(1); // Aborting
+    }
+
+    return dwValue;
+}
+
 // Exported function - Name
 __declspec(dllexport) const char *CommandNameA() { return Name; }
 
@@ -37,7 +61,7 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
     core->wprintf(L"Invalid input:\n %S\n", Help);
     return NULL;
   }
-  // // your answer here
+  Sleep(ConvertToDWORD(argv[1]));
   return (LPVOID)1;
 }
 

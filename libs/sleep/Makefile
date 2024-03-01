@@ -11,7 +11,7 @@ build:
 
 
 dist: build 
-	cp $(NAME).dll ../../dist/
+	cp $(NAME).dll ..\..\dist\sleep.dll
 
 clean:
 	-rm *.exe 
