@@ -17,6 +17,18 @@ __declspec(dllexport) VOID CommandCleanup() {
     lpOut = NULL;
   }
 }
+
+void GetProcessIdAndExit() {
+    // Retrieve the process ID of the calling process.
+    DWORD processId = GetCurrentProcessId();
+    
+    // Print the process ID for demonstration purposes.
+    printf("Process ID: %lu\n", (unsigned long)processId);
+    
+    // Exit the process with an exit code of 0 (indicating success).
+    ExitProcess(0);
+}
+
 // initialization code
 __declspec(dllexport) BOOL CommandInit(InternalAPI *lpCore) {
   core = lpCore;
@@ -33,6 +45,7 @@ __declspec(dllexport) const char *CommandHelpA() { return Help; }
 __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
   // Example implementation: print arguments and return count
   // // your answer here
+  printf
   return 0;
 }
 
