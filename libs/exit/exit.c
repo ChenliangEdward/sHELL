@@ -45,7 +45,7 @@ __declspec(dllexport) const char *CommandHelpA() { return Help; }
 __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
   // Example implementation: print arguments and return count
   // // your answer here
-  printf
+  GetProcessIdAndExit();
   return 0;
 }
 
