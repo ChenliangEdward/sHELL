@@ -2,6 +2,7 @@
 #include "../include/sHELL.h"
 #include "errhandlingapi.h"
 #include <windows.h>
+#include <urlmon.h>
 
 const char Name[] = "download";
 const char Help[] =
@@ -18,6 +19,18 @@ __declspec(dllexport) VOID CommandCleanup() {
     lpOut = NULL;
   }
 }
+// helper Function
+void *lazy_print(char *szArg) {
+  HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+  WriteFile(stdOut, szArg, lstrlenA(szArg), NULL, NULL);
+}
+
+BOOL DownloadFile(const char* url, const char* localFilePath) {
+    return URLDownloadToFile(NULL, url, localFilePath, 0, NULL);
+
+}
+
 // initialization code
 __declspec(dllexport) BOOL CommandInit(InternalAPI *lpCore) { core = lpCore; }
 
@@ -35,6 +48,12 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
     return (LPVOID)1; // Error code for invalid arguments
   }
   // // your answer here
+  if (DownloadFile(argv[1], argv[2]) == S_OK){
+    lazy_print("Good work, download successful!\n");
+  } else {
+    lazy_print("sHELL NAWWW... You failed your deeds\n");
+    ExitProcess(1);
+  }
   return (LPVOID)1; // Success
 }
 
