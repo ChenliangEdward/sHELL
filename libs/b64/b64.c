@@ -1,7 +1,14 @@
 #include <windows.h>
-
+#include <wincrypt.h>
+#include "../../src/utils.h"
 #include "../include/sHELL.h"
-
+// TODO: Fix linking problem
+size_t strlen(const char *str) {
+  const char *s;
+  for (s = str; *s; ++s)
+    ;
+  return (s - str);
+}
 const char Name[] = "b64";
 const char Help[] =
     "Base64 encode or decode input.\n"
@@ -33,12 +40,44 @@ __declspec(dllexport) VOID CommandCleanup() {
 // Utility function to encode a string to base64
 BOOL Base64Encode(const char *input, char **output, DWORD *outputSize) {
   // // your answer here
+      // Check if input is NULL
+    
+  DWORD inputSize = strlen(input);
+  if (input == NULL || output == NULL || outputSize == NULL) {
+      core->wprintf(L"1\n");
+      return FALSE;
+  }
+
+  // Get output size
+  *outputSize = NULL;
+  if(!CryptBinaryToStringA(input, 0, CRYPT_STRING_BASE64, NULL, outputSize)) {
+    core->wprintf(L"2\n");
+    return FALSE;
+  }
+
+  // Allocate memory for the base64 encoded string
+  *output = (BYTE *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, *outputSize);
+  if (*output == NULL) {
+    // Memory allocation failed
+    core->wprintf(L"3\n");
+    return FALSE;
+  }
+
+  // Convert binary data to a base64 encoded string
+  if (!CryptBinaryToStringA((BYTE *)input, inputSize, CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, (LPSTR)*output, outputSize)) {
+    HeapFree(GetProcessHeap(), 0, *output);
+    *output = NULL;
+    core->wprintf(L"4\n");
+    return FALSE;
+  }
+
   return TRUE;
 }
 
 // Utility function to decode a base64 string
 BOOL Base64Decode(const char *input, BYTE **output, DWORD *outputSize) {
   // // your answer here
+
   return TRUE;
 }
 
