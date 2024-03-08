@@ -40,34 +40,29 @@ __declspec(dllexport) VOID CommandCleanup() {
 // Utility function to encode a string to base64
 BOOL Base64Encode(const char *input, char **output, DWORD *outputSize) {
   // // your answer here
-      // Check if input is NULL
-    
+  
+  // Check if input is NULL
   DWORD inputSize = strlen(input);
   if (input == NULL || output == NULL || outputSize == NULL) {
-      core->wprintf(L"1\n");
       return FALSE;
   }
 
   // Get output size
-  *outputSize = NULL;
-  if(!CryptBinaryToStringA(input, 0, CRYPT_STRING_BASE64, NULL, outputSize)) {
-    core->wprintf(L"2\n");
+  if(!CryptBinaryToStringA(input, inputSize, CRYPT_STRING_BASE64, NULL, outputSize)) {
     return FALSE;
   }
 
   // Allocate memory for the base64 encoded string
-  *output = (BYTE *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, *outputSize);
+  *output = (char*)VirtualAlloc(NULL, *outputSize, MEM_COMMIT, PAGE_READWRITE);
   if (*output == NULL) {
     // Memory allocation failed
-    core->wprintf(L"3\n");
     return FALSE;
   }
 
   // Convert binary data to a base64 encoded string
-  if (!CryptBinaryToStringA((BYTE *)input, inputSize, CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, (LPSTR)*output, outputSize)) {
-    HeapFree(GetProcessHeap(), 0, *output);
+  if (!CryptBinaryToStringA((BYTE *)input, inputSize, CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, *output, outputSize)) {
+    VirtualFree(*output, 0, MEM_RELEASE);
     *output = NULL;
-    core->wprintf(L"4\n");
     return FALSE;
   }
 
@@ -77,7 +72,30 @@ BOOL Base64Encode(const char *input, char **output, DWORD *outputSize) {
 // Utility function to decode a base64 string
 BOOL Base64Decode(const char *input, BYTE **output, DWORD *outputSize) {
   // // your answer here
+  if (input == NULL || output == NULL || outputSize == NULL) {
+      return FALSE; // Invalid parameters
+  }
 
+  // Calculate the required size for the decoded output.
+  *outputSize = 0; // Initialize output size
+  if (!CryptStringToBinaryA(input, 0, CRYPT_STRING_BASE64, NULL, outputSize, NULL, NULL)) {
+      return FALSE; // Failed to calculate the size
+  }
+
+  // Allocate memory for the decoded output
+  *output = (BYTE *)VirtualAlloc(NULL, *outputSize, MEM_COMMIT, PAGE_READWRITE);
+  if (*output == NULL) {
+      return FALSE; // Memory allocation failed
+  }
+
+  // Perform the actual decoding
+  if (!CryptStringToBinaryA(input, 0, CRYPT_STRING_BASE64, *output, outputSize, NULL, NULL)) {
+      VirtualFree(*output, 0, MEM_RELEASE); // Free allocated memory on failure
+      *output = NULL; // Avoid dangling pointer
+      return FALSE; // Decoding failed
+  }
+
+  // Decoding was successful
   return TRUE;
 }
 
@@ -115,7 +133,7 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
     core->wprintf(L"Invalid command. Use 'encode' or 'decode'.\n");
     return NULL; // Error code for invalid command
   }
-
+  core->wprintf(L"I have returned from sHELL\n");
   return lpOut; // Success
 }
 

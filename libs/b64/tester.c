@@ -12,21 +12,21 @@ BOOL Base64Encode(const char *input, char **output, DWORD *outputSize) {
   }
 
   // Get output size
-  BOOL a = CryptBinaryToString(input, 3, CRYPT_STRING_BASE64, NULL, outputSize);
+  BOOL a = CryptBinaryToStringA(input, inputSize, CRYPT_STRING_BASE64, NULL, outputSize);
   if(!a) {
     return FALSE;
   }
 
   // Allocate memory for the base64 encoded string
-  *output = (BYTE *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, *outputSize);
+  *output = (char*)VirtualAlloc(NULL, *outputSize, MEM_COMMIT, PAGE_READWRITE);
   if (*output == NULL) {
     // Memory allocation failed
     return FALSE;
   }
 
   // Convert binary data to a base64 encoded string
-  if (!CryptBinaryToString((BYTE *)input, inputSize, CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, (LPSTR)*output, outputSize)) {
-    HeapFree(GetProcessHeap(), 0, *output);
+  if (!CryptBinaryToStringA((BYTE *)input, inputSize, CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, *output, outputSize)) {
+    VirtualFree(*output, 0, MEM_RELEASE);
     *output = NULL;
     return FALSE;
   }
@@ -35,14 +35,14 @@ BOOL Base64Encode(const char *input, char **output, DWORD *outputSize) {
 }
 
 int main(int argc, char** argv) {
-    char *input = "abc";
+    char *input = "abcdefghijabcdefghijkabcdefghijkabcdefghijkabcdefghijkk";
     char *encodedString = NULL;
     DWORD encodedSize = 0;
 
     if (Base64Encode(input, &encodedString, &encodedSize)) {
         printf("Encoded String: %s\n", encodedString);
         // Free the allocated memory for the encoded string
-        HeapFree(GetProcessHeap(), 0, encodedString);
+        VirtualFree(encodedString, 0, MEM_RELEASE);
     } else {
         printf("Encoding failed.\n");
     }
